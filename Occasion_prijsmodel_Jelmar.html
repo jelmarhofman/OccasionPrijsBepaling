@@ -435,24 +435,22 @@
     document.getElementById('staat-badge').textContent  = conditieLabels[conditieSlider];
 
     const rows = [
-      ['Catalogusprijs', euro(catalogusprijs)],
-      [`Leeftijdsafschrijving (${leeftijd} jr, factor ${leeftijdsFactor.toFixed(2)})`,
-        euro(basisNaLeeftijd - catalogusprijs)],
-      [`Kilometerkorting (${km.toLocaleString('nl-NL')} km, −${(kmKorting*100).toFixed(0)}%)`,
-        euro(naKm - basisNaLeeftijd)],
-      [`Staat: ${conditieLabels[conditieSlider]} (${conditieFactor >= 0 ? '+' : ''}${(conditieFactor*100).toFixed(0)}%)`,
-        euro(naConditie - naKm)],
-      [`Brandstof factor (×${brandstofFactor})`, euro(naBrandstof - naConditie)],
-      [`Carrosserie factor (×${carrosserieFactor})`, euro(naCarrosserie - naBrandstof)],
-      [`Transmissie factor (×${transmissieFactor})`, euro(eindprijs - naCarrosserie)],
+      { label: 'Catalogusprijs',                                                                       delta: catalogusprijs },
+      { label: `Na leeftijdsafschrijving (${leeftijd} jr, factor ${leeftijdsFactor.toFixed(2)})`,      delta: basisNaLeeftijd - catalogusprijs },
+      { label: `Kilometerkorting (${km.toLocaleString('nl-NL')} km, −${(kmKorting*100).toFixed(0)}%)`, delta: naKm - basisNaLeeftijd },
+      { label: `Staat: ${conditieLabels[conditieSlider]} (${conditieFactor >= 0 ? '+' : ''}${(conditieFactor*100).toFixed(0)}%)`, delta: naConditie - naKm },
+      { label: `Brandstof factor (×${brandstofFactor})`,                                               delta: naBrandstof - naConditie },
+      { label: `Carrosserie factor (×${carrosserieFactor})`,                                            delta: naCarrosserie - naBrandstof },
+      { label: `Transmissie factor (×${transmissieFactor})`,                                            delta: eindprijs - naCarrosserie },
     ];
 
     const tbody = document.getElementById('detail-body');
     tbody.innerHTML = rows.map((r, i) => {
-      const isLast = i === 0;
-      return `<tr${isLast ? ' class="totaal-rij"' : ''}>
-        <td>${r[0]}</td>
-        <td style="color:${i > 0 && r[1].startsWith('-') ? '#e53e3e' : '#276749'}">${r[1]}</td>
+      const isFirst = i === 0;
+      const color = isFirst ? '#276749' : (r.delta < 0 ? '#e53e3e' : '#276749');
+      return `<tr${isFirst ? ' class="totaal-rij"' : ''}>
+        <td>${r.label}</td>
+        <td style="color:${color}">${euro(r.delta)}</td>
       </tr>`;
     }).join('') +
     `<tr class="totaal-rij">
