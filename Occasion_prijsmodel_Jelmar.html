@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Occasion Prijsmodel – Jelmar</title>
+  <style>
+    /* ── Reset & base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a56db 0%, #0e3a8c 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(26, 86, 219, 0.35);
+    }
+
+    header h1 { font-size: 1.8rem; letter-spacing: -0.5px; }
+    header p  { margin-top: .4rem; opacity: .85; font-size: .95rem; }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: #1a56db;
+      margin-bottom: 1.2rem;
+      padding-bottom: .6rem;
+      border-bottom: 2px solid #e8efff;
+    }
+
+    /* ── Form grid ─────────────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: .35rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .form-group input,
+    .form-group select {
+      border: 1.5px solid #cbd5e0;
+      border-radius: 7px;
+      padding: .55rem .8rem;
+      font-size: .97rem;
+      color: #1a202c;
+      background: #fafafa;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.15);
+      background: #fff;
+    }
+
+    /* ── Condition slider ──────────────────────────────────── */
+    .slider-group { grid-column: 1 / -1; }
+    .slider-group .slider-row {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-top: .35rem;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #1a56db;
+      height: 6px;
+      cursor: pointer;
+    }
+    #conditie-waarde {
+      min-width: 110px;
+      font-weight: 600;
+      color: #1a56db;
+      font-size: .95rem;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────── */
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: .7rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .2s;
+    }
+    button:active { transform: scale(.97); }
+
+    #btn-bereken {
+      background: linear-gradient(135deg, #1a56db, #0e3a8c);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(26,86,219,.4);
+    }
+    #btn-bereken:hover { box-shadow: 0 6px 20px rgba(26,86,219,.5); }
+
+    #btn-reset {
+      background: #edf2f7;
+      color: #4a5568;
+    }
+    #btn-reset:hover { background: #e2e8f0; }
+
+    /* ── Result card ───────────────────────────────────────── */
+    #resultaat-card {
+      display: none;
+      background: linear-gradient(135deg, #ebf4ff 0%, #e8efff 100%);
+      border: 2px solid #1a56db;
+    }
+
+    #resultaat-card h2 { color: #0e3a8c; border-bottom-color: #c3dafe; }
+
+    .prijs-groot {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #1a56db;
+      margin: .4rem 0 1.2rem;
+    }
+
+    .detail-tabel {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+      margin-top: .5rem;
+    }
+    .detail-tabel tr:not(:last-child) td { border-bottom: 1px solid #c3dafe; }
+    .detail-tabel td { padding: .45rem .3rem; }
+    .detail-tabel td:last-child { text-align: right; font-weight: 600; }
+    .detail-tabel .totaal-rij td {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0e3a8c;
+      border-top: 2px solid #1a56db !important;
+      padding-top: .7rem;
+    }
+    .detail-tabel .highlight-rij td {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0e3a8c;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1a56db;
+      color: #fff;
+      border-radius: 20px;
+      padding: .2rem .8rem;
+      font-size: .78rem;
+      font-weight: 700;
+      margin-left: .5rem;
+      vertical-align: middle;
+    }
+
+    /* ── Uitleg tabel ──────────────────────────────────────── */
+    .info-tabel {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin-top: .5rem;
+    }
+    .info-tabel th {
+      background: #edf2f7;
+      padding: .5rem .7rem;
+      text-align: left;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .info-tabel td { padding: .45rem .7rem; border-bottom: 1px solid #e2e8f0; }
+    .info-tabel tr:hover td { background: #f7fafc; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 540px) {
+      header { padding: 1.5rem; }
+      .card  { padding: 1.5rem; }
+      .prijs-groot { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header>
+    <h1>🚗 Occasion Prijsmodel</h1>
+    <p>Bereken de verwachte verkoopprijs van een gebruikte auto op basis van leeftijd, kilometerstand, staat en brandstoftype.</p>
+  </header>
+
+  <!-- ── Invoer ──────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Voertuiggegevens</h2>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="merk">Merk</label>
+        <input type="text" id="merk" placeholder="bijv. Volkswagen" />
+      </div>
+
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input type="text" id="model" placeholder="bijv. Golf" />
+      </div>
+
+      <div class="form-group">
+        <label for="bouwjaar">Bouwjaar</label>
+        <input type="number" id="bouwjaar" placeholder="bijv. 2018" min="1980" max="2026" />
+      </div>
+
+      <div class="form-group">
+        <label for="catalogusprijs">Catalogusprijs (€)</label>
+        <input type="number" id="catalogusprijs" placeholder="bijv. 25000" min="1000" />
+      </div>
+
+      <div class="form-group">
+        <label for="kilometerstand">Kilometerstand (km)</label>
+        <input type="number" id="kilometerstand" placeholder="bijv. 85000" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label for="brandstof">Brandstof</label>
+        <select id="brandstof">
+          <option value="1.00">Benzine</option>
+          <option value="0.97">Diesel</option>
+          <option value="1.05">Elektrisch</option>
+          <option value="1.02">Hybride</option>
+          <option value="0.96">LPG</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="carrosserie">Carrosserie</label>
+        <select id="carrosserie">
+          <option value="1.00">Hatchback</option>
+          <option value="1.02">Sedan</option>
+          <option value="1.03">Stationwagon</option>
+          <option value="1.05">SUV / Crossover</option>
+          <option value="1.08">Coupé</option>
+          <option value="0.95">MPV / Minibus</option>
+          <option value="0.93">Cabrio</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="transmissie">Transmissie</label>
+        <select id="transmissie">
+          <option value="1.00">Handgeschakeld</option>
+          <option value="1.04">Automaat</option>
+        </select>
+      </div>
+
+      <div class="form-group slider-group">
+        <label for="conditie">Staat van de auto</label>
+        <div class="slider-row">
+          <input type="range" id="conditie" min="1" max="5" step="1" value="3"
+                 oninput="updateConditieLabel(this.value)" />
+          <span id="conditie-waarde">Goed</span>
+        </div>
+      </div>
+
+    </div><!-- /.form-grid -->
+
+    <div class="btn-row">
+      <button id="btn-bereken" onclick="berekenPrijs()">Bereken prijs</button>
+      <button id="btn-reset" onclick="resetFormulier()">Reset</button>
+    </div>
+  </div><!-- /.card -->
+
+  <!-- ── Resultaat ────────────────────────────────────────── -->
+  <div class="card" id="resultaat-card">
+    <h2>Berekende verkoopprijs <span class="badge" id="staat-badge"></span></h2>
+    <div class="prijs-groot" id="prijs-output">€ 0</div>
+
+    <table class="detail-tabel">
+      <tbody id="detail-body"></tbody>
+    </table>
+  </div>
+
+  <!-- ── Uitleg ───────────────────────────────────────────── -->
+  <div class="card">
+    <h2>Toelichting berekening</h2>
+    <p style="font-size:.9rem;color:#4a5568;margin-bottom:.8rem;">
+      Het model past de catalogusprijs aan op basis van vier factoren:
+    </p>
+    <table class="info-tabel">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Methode</th>
+          <th>Effect</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Leeftijdsafschrijving</strong></td>
+          <td>Eerste jaar −20 %, daarna −10 % per jaar (max. −85 %)</td>
+          <td>Hoe ouder, hoe lager de prijs</td>
+        </tr>
+        <tr>
+          <td><strong>Kilometerstand</strong></td>
+          <td>−1 % per 10 000 km boven 20 000 km (max. −25 %)</td>
+          <td>Meer km = lagere prijs</td>
+        </tr>
+        <tr>
+          <td><strong>Staat (conditie)</strong></td>
+          <td>Slecht: −15 % · Matig: −7 % · Goed: 0 % · Zeer goed: +5 % · Uitstekend: +10 %</td>
+          <td>Betere staat = hogere prijs</td>
+        </tr>
+        <tr>
+          <td><strong>Brandstof / uitvoering</strong></td>
+          <td>Elektrisch +5 %, Hybride +2 %, Automaat +4 %, LPG −4 %</td>
+          <td>Vraag- en marktgericht</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /.container -->
+
+<script>
+  /* ── Conditie labels ─────────────────────────────────── */
+  const conditieLabels = {
+    1: 'Slecht',
+    2: 'Matig',
+    3: 'Goed',
+    4: 'Zeer goed',
+    5: 'Uitstekend'
+  };
+  const conditieFactoren = { 1: -0.15, 2: -0.07, 3: 0.00, 4: 0.05, 5: 0.10 };
+
+  function updateConditieLabel(waarde) {
+    document.getElementById('conditie-waarde').textContent = conditieLabels[waarde];
+  }
+
+  /* ── Hulpfunctie: formateer euro ─────────────────────── */
+  function euro(bedrag) {
+    return new Intl.NumberFormat('nl-NL', {
+      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+    }).format(bedrag);
+  }
+
+  /* ── Validatie ───────────────────────────────────────── */
+  function valideer(id, label) {
+    const el = document.getElementById(id);
+    const val = parseFloat(el.value);
+    if (isNaN(val) || val <= 0) {
+      el.focus();
+      el.style.borderColor = '#e53e3e';
+      setTimeout(() => el.style.borderColor = '', 1800);
+      alert(`Vul een geldige waarde in voor: ${label}`);
+      return null;
+    }
+    return val;
+  }
+
+  /* ── Hoofd berekening ────────────────────────────────── */
+  function berekenPrijs() {
+    const huidigJaar     = new Date().getFullYear();
+    const catalogusprijs = valideer('catalogusprijs', 'Catalogusprijs');
+    if (!catalogusprijs) return;
+    const bouwjaar = valideer('bouwjaar', 'Bouwjaar');
+    if (!bouwjaar) return;
+    const km = parseFloat(document.getElementById('kilometerstand').value) || 0;
+
+    if (bouwjaar < 1980 || bouwjaar > huidigJaar) {
+      alert('Vul een geldig bouwjaar in (1980 – huidig jaar).');
+      return;
+    }
+
+    const leeftijd       = huidigJaar - bouwjaar;
+    const brandstofFactor = parseFloat(document.getElementById('brandstof').value);
+    const carrosserieFactor = parseFloat(document.getElementById('carrosserie').value);
+    const transmissieFactor = parseFloat(document.getElementById('transmissie').value);
+    const conditieSlider  = parseInt(document.getElementById('conditie').value);
+    const conditieFactor  = conditieFactoren[conditieSlider];
+
+    /* Leeftijdsafschrijving */
+    let leeftijdsFactor;
+    if (leeftijd === 0) {
+      leeftijdsFactor = 1.00;        // nieuw
+    } else if (leeftijd === 1) {
+      leeftijdsFactor = 0.80;        // −20 % eerste jaar
+    } else {
+      leeftijdsFactor = Math.max(0.80 * Math.pow(0.90, leeftijd - 1), 0.15);
+    }
+
+    /* Kilometerafschrijving (boven 20 000 km) */
+    const extraKm      = Math.max(km - 20000, 0);
+    const kmKorting    = Math.min(Math.floor(extraKm / 10000) * 0.01, 0.25);
+
+    /* Conditie-aanpassing */
+    const basisNaLeeftijd = catalogusprijs * leeftijdsFactor;
+    const naKm            = basisNaLeeftijd * (1 - kmKorting);
+    const naConditie      = naKm * (1 + conditieFactor);
+    const naBrandstof     = naConditie * brandstofFactor;
+    const naCarrosserie   = naBrandstof * carrosserieFactor;
+    const eindprijs       = naCarrosserie * transmissieFactor;
+
+    /* ── Resultaat weergeven ─────────────────────────── */
+    document.getElementById('prijs-output').textContent = euro(eindprijs);
+    document.getElementById('staat-badge').textContent  = conditieLabels[conditieSlider];
+
+    const rows = [
+      { label: 'Catalogusprijs',                                                                       delta: catalogusprijs },
+      { label: `Na leeftijdsafschrijving (${leeftijd} jr, factor ${leeftijdsFactor.toFixed(2)})`,      delta: basisNaLeeftijd - catalogusprijs },
+      { label: `Kilometerkorting (${km.toLocaleString('nl-NL')} km, −${(kmKorting*100).toFixed(0)}%)`, delta: naKm - basisNaLeeftijd },
+      { label: `Staat: ${conditieLabels[conditieSlider]} (${conditieFactor >= 0 ? '+' : ''}${(conditieFactor*100).toFixed(0)}%)`, delta: naConditie - naKm },
+      { label: `Brandstof factor (×${brandstofFactor})`,                                               delta: naBrandstof - naConditie },
+      { label: `Carrosserie factor (×${carrosserieFactor})`,                                            delta: naCarrosserie - naBrandstof },
+      { label: `Transmissie factor (×${transmissieFactor})`,                                            delta: eindprijs - naCarrosserie },
+    ];
+
+    const KLEUR_POSITIEF = '#276749';
+    const KLEUR_NEGATIEF = '#e53e3e';
+
+    const tbody = document.getElementById('detail-body');
+    tbody.innerHTML = rows.map((r, i) => {
+      const isFirst = i === 0;
+      const color = isFirst ? KLEUR_POSITIEF : (r.delta < 0 ? KLEUR_NEGATIEF : KLEUR_POSITIEF);
+      return `<tr${isFirst ? ' class="highlight-rij"' : ''}>
+        <td>${r.label}</td>
+        <td style="color:${color}">${euro(r.delta)}</td>
+      </tr>`;
+    }).join('') +
+    `<tr class="totaal-rij">
+      <td>Geschatte verkoopprijs</td>
+      <td>${euro(eindprijs)}</td>
+    </tr>`;
+
+    const card = document.getElementById('resultaat-card');
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── Reset ───────────────────────────────────────────── */
+  function resetFormulier() {
+    ['merk','model','bouwjaar','catalogusprijs','kilometerstand'].forEach(id => {
+      document.getElementById(id).value = '';
+      document.getElementById(id).style.borderColor = '';
+    });
+    document.getElementById('brandstof').selectedIndex = 0;
+    document.getElementById('carrosserie').selectedIndex = 0;
+    document.getElementById('transmissie').selectedIndex = 0;
+    document.getElementById('conditie').value = 3;
+    updateConditieLabel(3);
+    document.getElementById('resultaat-card').style.display = 'none';
+  }
+</script>
+</body>
+</html>
