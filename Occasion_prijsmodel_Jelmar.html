@@ -171,6 +171,11 @@
       border-top: 2px solid #1a56db !important;
       padding-top: .7rem;
     }
+    .detail-tabel .highlight-rij td {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0e3a8c;
+    }
 
     .badge {
       display: inline-block;
@@ -444,11 +449,14 @@
       { label: `Transmissie factor (×${transmissieFactor})`,                                            delta: eindprijs - naCarrosserie },
     ];
 
+    const KLEUR_POSITIEF = '#276749';
+    const KLEUR_NEGATIEF = '#e53e3e';
+
     const tbody = document.getElementById('detail-body');
     tbody.innerHTML = rows.map((r, i) => {
       const isFirst = i === 0;
-      const color = isFirst ? '#276749' : (r.delta < 0 ? '#e53e3e' : '#276749');
-      return `<tr${isFirst ? ' class="totaal-rij"' : ''}>
+      const color = isFirst ? KLEUR_POSITIEF : (r.delta < 0 ? KLEUR_NEGATIEF : KLEUR_POSITIEF);
+      return `<tr${isFirst ? ' class="highlight-rij"' : ''}>
         <td>${r.label}</td>
         <td style="color:${color}">${euro(r.delta)}</td>
       </tr>`;
